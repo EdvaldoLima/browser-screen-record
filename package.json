@@ -1,0 +1,30 @@
+{
+  "name": "browser-screen-record",
+  "version": "1.0.0",
+  "description": "browser screen record",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EdvaldoLima/browser-screen-record.git"
+  },
+  "keywords": [
+    "video",
+    "screen",
+    "record",
+    "webrtc",
+    "screencast",
+    "screen-record",
+    "screen-recording",
+    "share",
+    "screencasting"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EdvaldoLima/browser-screen-record/issues"
+  },
+  "homepage": "https://github.com/EdvaldoLima/browser-screen-record#readme",
+  "dependencies": {}
+}
