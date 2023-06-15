@@ -24,7 +24,7 @@ export class BrowserScreen {
   startRecord() {
     this.browserSupported();
     navigator.mediaDevices
-      .getDisplayMedia(this.options)
+      .getDisplayMedia(this.getDisplayMediaOptions)
       .then((stream) => {
         this.streamSuccess(stream);
       })
