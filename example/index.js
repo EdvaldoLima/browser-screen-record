@@ -1,4 +1,4 @@
-import { BrowserScreen } from '../src/screen-record.js'
+import BrowserScreen from './../dist/index.js'
 
 const screen = new BrowserScreen()
 

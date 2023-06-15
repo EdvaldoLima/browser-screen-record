@@ -1,30 +1,36 @@
 import { errorMsg } from "../utils/messageError.js";
 
 export class BrowserScreen {
+  videoStream: MediaStream | any
+  mediaRecorder: MediaRecorder | any
+  recordedSlices: Array<any>
+  displayMediaOptions: DisplayMediaStreamOptions
+  mediaRecorderOptions: MediaRecorderOptions
+
   constructor(
-    getDisplayMediaOptions = { video: true, audio: false },
-    mediaRecorderOptions = {}
+    displayMediaOptions: DisplayMediaStreamOptions,
+    mediaRecorderOptions: MediaRecorderOptions
   ) {
     this.videoStream = null;
     this.mediaRecorder = null;
     this.recordedSlices = [];
-    this.getDisplayMediaOptions = getDisplayMediaOptions;
+    this.displayMediaOptions = displayMediaOptions;
     this.mediaRecorderOptions = mediaRecorderOptions;
   }
 
-  streamSuccess(stream) {
+  streamSuccess(stream: MediaStream): void {
     this.videoStream = stream;
     this.mediaRecord();
   }
 
-  streamError(error) {
+  streamError(error: ErrorCallback) {
     errorMsg(`getDisplayMedia error: ${error.name}`, error);
   }
 
   startRecord() {
     this.browserSupported();
     navigator.mediaDevices
-      .getDisplayMedia(this.getDisplayMediaOptions)
+      .getDisplayMedia(this.displayMediaOptions)
       .then((stream) => {
         this.streamSuccess(stream);
       })
@@ -36,7 +42,7 @@ export class BrowserScreen {
   stopRecord() {
     return new Promise((resolve, reject) => {
       try {
-        this.videoStream.getTracks().forEach((track) => track.stop());
+        this.videoStream?.getTracks().forEach((track: any) => track.stop());
         this.mediaRecorder.onstop = () => {
           const completeBlob = new Blob(this.recordedSlices, {
             type: this.recordedSlices[0].type,
@@ -50,9 +56,11 @@ export class BrowserScreen {
   }
 
   mediaRecord() {
-    this.mediaRecorder = new MediaRecorder(this.videoStream, this.mediaRecorderOptions);
-    this.mediaRecorder.ondataavailable = (e) =>
-      this.recordedSlices.push(e.data);
+    this.mediaRecorder = new MediaRecorder(
+      this.videoStream,
+      this.mediaRecorderOptions
+    );
+    this.mediaRecorder.ondataavailable = (event: any) => this.recordedSlices.push(event.data);
     this.mediaRecorder.start();
   }
 
