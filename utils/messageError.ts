@@ -1,4 +1,4 @@
-export function errorMsg(msg: string, error: any = undefined) {
+export function messageError(msg: string, error?: ErrorCallback | string) {
   if (typeof error !== "undefined") {
     console.error(msg, error);
   }
