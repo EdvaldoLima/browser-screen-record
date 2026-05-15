@@ -1,6 +1,6 @@
-import { messageError } from "../utils/messageError.js";
+import { messageError } from "./utils/messageError";
 
-export class BrowserScreen {
+export default class BrowserScreen {
   videoStream: MediaStream;
   mediaRecorder: MediaRecorder;
   recordedSlices: Array<Blob>;
@@ -8,8 +8,8 @@ export class BrowserScreen {
   mediaRecorderOptions: MediaRecorderOptions;
 
   constructor(
-    displayMediaOptions: DisplayMediaStreamOptions,
-    mediaRecorderOptions: MediaRecorderOptions
+    displayMediaOptions: DisplayMediaStreamOptions = {},
+    mediaRecorderOptions: MediaRecorderOptions = {}
   ) {
     this.videoStream = {} as MediaStream;
     this.mediaRecorder = {} as MediaRecorder;
