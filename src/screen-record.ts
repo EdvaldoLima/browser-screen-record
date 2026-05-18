@@ -1,8 +1,8 @@
 import { messageError } from "./utils/messageError";
 
 export default class BrowserScreen {
-  videoStream: MediaStream;
-  mediaRecorder: MediaRecorder;
+  videoStream: MediaStream | null;
+  mediaRecorder: MediaRecorder | null;
   recordedSlices: Array<Blob>;
   displayMediaOptions: DisplayMediaStreamOptions;
   mediaRecorderOptions: MediaRecorderOptions;
@@ -11,8 +11,8 @@ export default class BrowserScreen {
     displayMediaOptions: DisplayMediaStreamOptions = {},
     mediaRecorderOptions: MediaRecorderOptions = {}
   ) {
-    this.videoStream = {} as MediaStream;
-    this.mediaRecorder = {} as MediaRecorder;
+    this.videoStream = null;
+    this.mediaRecorder = null;
     this.recordedSlices = [];
     this.displayMediaOptions = displayMediaOptions;
     this.mediaRecorderOptions = mediaRecorderOptions;
@@ -23,7 +23,7 @@ export default class BrowserScreen {
     this.mediaRecord();
   }
 
-  streamError(error: ErrorCallback): void {
+  streamError(error: DOMException | Error): void {
     messageError(`getDisplayMedia error: ${error.name}`, error);
   }
 
@@ -39,18 +39,35 @@ export default class BrowserScreen {
       });
   }
 
-  stopRecord(): Promise<unknown> {
+  stopRecord(): Promise<string> {
     return new Promise((resolve, reject) => {
       try {
+        if (!this.videoStream || !this.mediaRecorder) {
+          throw new Error("Recorder was not initialized");
+        }
+
+        const timeout = setTimeout(() => {
+          reject(new Error("Timeout: recording did not finish"));
+        }, 5000);
+
         this.videoStream
           .getTracks()
           .forEach((track: MediaStreamTrack) => track.stop());
+
         this.mediaRecorder.onstop = () => {
-          const completeBlob = new Blob(this.recordedSlices, {
-            type: this.recordedSlices[0].type,
-          });
+          clearTimeout(timeout);
+
+          if (this.recordedSlices.length === 0) {
+            reject(new Error("No data was recorded"));
+            return;
+          }
+
+          const type = this.recordedSlices[0].type || 'video/webm';
+          const completeBlob = new Blob(this.recordedSlices, { type });
           resolve(URL.createObjectURL(completeBlob));
         };
+
+        this.mediaRecorder.stop();
       } catch (error) {
         reject(error);
       }
@@ -58,6 +75,14 @@ export default class BrowserScreen {
   }
 
   mediaRecord(): void {
+    if (!this.videoStream) {
+      throw new Error("Video stream was not initialized");
+    }
+
+    if (this.mediaRecorder?.state === 'recording') {
+      return;
+    }
+
     this.mediaRecorder = new MediaRecorder(
       this.videoStream,
       this.mediaRecorderOptions
@@ -69,7 +94,7 @@ export default class BrowserScreen {
 
   browserSupported(): boolean {
     if (
-      !navigator.mediaDevices &&
+      !navigator.mediaDevices ||
       !("getDisplayMedia" in navigator.mediaDevices)
     ) {
       messageError("getDisplayMedia is not supported");
