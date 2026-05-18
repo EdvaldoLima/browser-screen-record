@@ -12,24 +12,35 @@ shadow.innerHTML = `
   <button id="stop">stop</button>
 `;
 
-const start = shadow.querySelector("#start")
-const stop = shadow.querySelector("#stop")
+const start = shadow.querySelector("#start") as HTMLButtonElement;
+const stop = shadow.querySelector("#stop") as HTMLButtonElement;
 
-const screen = new BrowserScreen()
+if (!start || !stop) {
+  throw new Error("Required elements not found in DOM");
+}
 
-start?.addEventListener("click", () => {
-  screen.startRecord()
-})
+const screen = new BrowserScreen();
 
-stop?.addEventListener("click", () => {
+start.addEventListener("click", () => {
+  screen.startRecord();
+});
+
+stop.addEventListener("click", () => {
   screen.stopRecord().then(blobURL => {
-    const url = String(blobURL)
-    const video = shadow.querySelector<HTMLVideoElement>("#preview")
-    const link = shadow.querySelector("#download")
-    link?.setAttribute("href", url)
-    video?.setAttribute("src", url)
-    video?.play()
+    const url = String(blobURL);
+    const video = shadow.querySelector<HTMLVideoElement>("#preview");
+    const link = shadow.querySelector<HTMLAnchorElement>("#download");
+    
+    if (!video || !link) {
+      throw new Error("Video elements not found");
+    }
+    
+    link.setAttribute("href", url);
+    video.setAttribute("src", url);
+    video.play();
+  }).catch(() => {
+    // Handle error silently
   });
-})
+});
 
 export default example;
