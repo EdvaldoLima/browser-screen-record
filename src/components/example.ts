@@ -19,7 +19,7 @@ if (!start || !stop) {
   throw new Error("Required elements not found in DOM");
 }
 
-const screen = new BrowserScreen();
+const screen = new BrowserScreen({ audio: true });
 
 start.addEventListener("click", () => {
   screen.startRecord();

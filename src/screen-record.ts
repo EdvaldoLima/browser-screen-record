@@ -32,11 +32,29 @@ export default class BrowserScreen {
     navigator.mediaDevices
       .getDisplayMedia(this.displayMediaOptions)
       .then((stream) => {
-        this.streamSuccess(stream);
+        this.handleAudio(stream);
       })
       .catch((error) => {
         this.streamError(error);
       });
+  }
+
+  async handleAudio(videoStream: MediaStream): Promise<void> {
+    try {
+      if (this.displayMediaOptions.audio) {
+        const audioStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        
+        audioStream.getAudioTracks().forEach((track) => {
+          videoStream.addTrack(track);
+        });
+      }
+      
+      this.streamSuccess(videoStream);
+    } catch (error) {
+      this.streamError(error instanceof Error ? error : new Error(String(error)));
+    }
   }
 
   stopRecord(): Promise<string> {
